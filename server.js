@@ -34,7 +34,7 @@ const server = http.createServer((req, res) => {
         1000000 + Math.random() * 9000000
       );
 
-      const filename = `report_${randomNumber}.zip`;
+      const filename = `RFQ_${randomNumber}.zip`;
 
       res.writeHead(200, {
         "Content-Type": "application/zip",
