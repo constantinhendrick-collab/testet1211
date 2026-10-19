@@ -40,6 +40,10 @@ const server = http.createServer((req, res) => {
   res.end("Not found");
 });
 
-server.listen(3000, () => {
-  console.log("Open http://localhost:3000");
+
+const PORT = process.env.PORT || 10000;
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server listening on port ${PORT}`);
 });
+
