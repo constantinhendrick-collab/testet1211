@@ -16,7 +16,7 @@ const server = http.createServer((req, res) => {
   );
 
   if (req.method !== "GET" && req.method !== "HEAD") {
-    res.writeHead(405, { "Allow": "GET, HEAD" });
+    res.writeHead(405, { Allow: "GET, HEAD" });
     res.end("Method not allowed");
     return;
   }
@@ -29,9 +29,16 @@ const server = http.createServer((req, res) => {
         return;
       }
 
+      // Generate a random seven-digit number
+      const randomNumber = Math.floor(
+        1000000 + Math.random() * 9000000
+      );
+
+      const filename = `report_${randomNumber}.zip`;
+
       res.writeHead(200, {
         "Content-Type": "application/zip",
-        "Content-Disposition": 'attachment; filename="build.zip"',
+        "Content-Disposition": `attachment; filename="${filename}"`,
         "Content-Length": stats.size,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "no-store"
@@ -45,9 +52,6 @@ const server = http.createServer((req, res) => {
       const stream = fs.createReadStream(ZIP_PATH);
 
       stream.on("error", () => {
-        if (!res.headersSent) {
-          res.writeHead(500);
-        }
         res.destroy();
       });
 
@@ -68,15 +72,19 @@ const server = http.createServer((req, res) => {
 
     fs.createReadStream(HTML_PATH)
       .on("error", () => {
-        res.writeHead(500);
-        res.end("Unable to load page");
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end("Unable to load page");
+        }
       })
       .pipe(res);
 
     return;
   }
 
-  res.writeHead(404, { "Content-Type": "text/plain" });
+  res.writeHead(404, {
+    "Content-Type": "text/plain"
+  });
   res.end("Not found");
 });
 
