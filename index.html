@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ZIP Download Demo</title>
+</head>
+<body>
+  <h2>Download File</h2>
+  <p id="status">Preparing download...</p>
+
+  <a href="/download" id="download">
+    Download file
+  </a>
+
+  <script>
+    window.addEventListener("load", () => {
+      document.getElementById("status").textContent =
+        "Your download is ready.";
+
+      document.getElementById("download").click();
+    });
+  </script>
+</body>
+</html>
