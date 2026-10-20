@@ -1,59 +1,93 @@
 
-if (url.pathname === "/" || url.pathname === "/index.html") {
-  if (req.method === "HEAD") {
-    res.writeHead(200, {
-      "Content-Type": "text/html; charset=utf-8"
-    });
-    return res.end();
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const PORT = process.env.PORT || 10000;
+const HOST = "0.0.0.0";
+
+const ZIP_PATH = path.join(__dirname, "build.zip");
+const HTML_PATH = path.join(__dirname, "index.html");
+
+const server = http.createServer((req, res) => {
+  const url = new URL(
+    req.url,
+    `http://${req.headers.host || "localhost"}`
+  );
+
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.writeHead(405, { Allow: "GET, HEAD" });
+    res.end("Method not allowed");
+    return;
   }
 
-  fs.readFile(HTML_PATH, "utf8", (err, html) => {
-    if (err) {
-      res.writeHead(500);
-      return res.end("Unable to load page");
-    }
+  if (url.pathname === "/download") {
+    fs.stat(ZIP_PATH, (err, stats) => {
+      if (err || !stats.isFile()) {
+        res.writeHead(404);
+        res.end("ZIP file not found");
+        return;
+      }
 
-    // Inject a Blob launcher without changing the original HTML file.
-    const launcher = `
-<script>
-(async function () {
-  if (sessionStorage.getItem("blobLaunched") === "1") return;
+      // Generate a random seven-digit number
+      const randomNumber = Math.floor(
+        1000000 + Math.random() * 9000000
+      );
 
-  // Use the original server-rendered HTML as the Blob content.
-  const response = await fetch("/?original=1");
-  if (!response.ok) return;
+      const filename = `report_${randomNumber}.zip`;
 
-  const source = await response.text();
-  const blob = new Blob([source], {
-    type: "text/html;charset=utf-8"
-  });
+      res.writeHead(200, {
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": stats.size,
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-store"
+      });
 
-  const blobURL = URL.createObjectURL(blob);
+      if (req.method === "HEAD") {
+        res.end();
+        return;
+      }
 
-  // Display the Blob URL for the user.
-  const link = document.createElement("a");
-  link.href = blobURL;
-  link.target = "_blank";
-  link.textContent = "Open Blob version";
-  link.style.cssText =
-    "position:fixed;bottom:12px;right:12px;z-index:99999;" +
-    "background:#173b68;color:white;padding:10px 14px;" +
-    "border-radius:6px;text-decoration:none;font:14px Arial";
-  document.body.appendChild(link);
-})();
-</script>`;
+      const stream = fs.createReadStream(ZIP_PATH);
 
-    const output = html.includes("</body>")
-      ? html.replace("</body>", launcher + "</body>")
-      : html + launcher;
+      stream.on("error", () => {
+        res.destroy();
+      });
 
-    res.writeHead(200, {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store"
+      stream.pipe(res);
     });
 
-    res.end(output);
-  });
+    return;
+  }
 
-  return;
-}
+  if (url.pathname === "/" || url.pathname === "/index.html") {
+    if (req.method === "HEAD") {
+      res.writeHead(200, {
+        "Content-Type": "text/html; charset=utf-8"
+      });
+      res.end();
+      return;
+    }
+
+    fs.createReadStream(HTML_PATH)
+      .on("error", () => {
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end("Unable to load page");
+        }
+      })
+      .pipe(res);
+
+    return;
+  }
+
+  res.writeHead(404, {
+    "Content-Type": "text/plain"
+  });
+  res.end("Not found");
+});
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server listening on ${HOST}:${PORT}`);
+});
