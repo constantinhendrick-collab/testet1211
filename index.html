@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Document Center | Your Company</title>
+  <title>Shared Document</title>
 
   <style>
     :root {
@@ -29,52 +28,6 @@
       font-family: Arial, Helvetica, sans-serif;
       background: var(--background);
       color: var(--text);
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Corporate header */
-
-    .header {
-      height: 76px;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 7%;
-    }
-
-    .company {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-    }
-
-    .company-logo {
-      width: 38px;
-      height: 38px;
-      object-fit: contain;
-    }
-
-    .company-name {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: #152a43;
-    }
-
-    .company-subtitle {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-      letter-spacing: 1.1px;
-      text-transform: uppercase;
-    }
-
-    .header-right {
-      font-size: 13px;
-      color: var(--muted);
     }
 
     /* Main content */
@@ -83,19 +36,7 @@
       width: 100%;
       max-width: 900px;
       margin: 0 auto;
-      padding: 66px 24px 80px;
-      flex: 1;
-    }
-
-    .breadcrumb {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 28px;
-    }
-
-    .breadcrumb span {
-      color: #9ba5b2;
-      margin: 0 9px;
+      padding: 66px 24px 50px;
     }
 
     .intro {
@@ -285,7 +226,7 @@
       stroke-linejoin: round;
     }
 
-    /* Information footer */
+    /* Information message */
 
     .information {
       display: flex;
@@ -307,51 +248,11 @@
       stroke-width: 1.7;
     }
 
-    .footer {
-      border-top: 1px solid var(--border);
-      background: #ffffff;
-      padding: 23px 7%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .footer-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .footer a {
-      color: var(--muted);
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      color: var(--primary);
-    }
-
     /* Responsive layout */
 
     @media (max-width: 600px) {
-      .header {
-        height: 70px;
-        padding: 0 20px;
-      }
-
-      .company-name {
-        font-size: 16px;
-      }
-
-      .header-right {
-        display: none;
-      }
-
       .main {
-        padding: 38px 17px 50px;
+        padding: 38px 17px 40px;
       }
 
       .intro h1 {
@@ -389,44 +290,13 @@
       .download-button {
         width: 100%;
       }
-
-      .footer {
-        padding: 22px 20px;
-        align-items: flex-start;
-        flex-direction: column;
-      }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Company header -->
-  <header class="header">
-    <div class="company">
-      <img
-        src="logo.png"
-        alt="Company logo"
-        class="company-logo"
-      >
-
-      <div>
-        <div class="company-name">Your Company</div>
-        <div class="company-subtitle">Document Center</div>
-      </div>
-    </div>
-
-    <div class="header-right">
-      File sharing portal
-    </div>
-  </header>
-
-  <!-- Main page -->
   <main class="main">
-
-    <div class="breadcrumb">
-      Home <span>/</span> Shared files
-    </div>
 
     <section class="intro">
       <h1>Shared document</h1>
@@ -437,7 +307,6 @@
       </p>
     </section>
 
-    <!-- File information card -->
     <section class="document-panel">
 
       <div class="panel-heading">
@@ -461,8 +330,7 @@
         </div>
 
         <div class="file-info">
-          <!-- Replace with the real file name -->
-          <h3>example-file.zip</h3>
+          <h3>Invoice_Payment_Information</h3>
 
           <div class="file-meta">
             <span>ZIP archive</span>
@@ -475,9 +343,7 @@
 
       </div>
 
-      <!-- Download action -->
       <div class="download-area">
-
         <div class="download-content">
 
           <div class="download-description">
@@ -494,7 +360,6 @@
               <path d="m7 10 5 5 5-5"/>
               <path d="M5 17v3h14v-3"/>
             </svg>
-
             Download file
           </a>
 
@@ -513,31 +378,11 @@
       <p>
         The download will begin when you select the Download
         button. If you experience any issues accessing the file,
-        please contact the person who shared it with you.
+        please contact us.
       </p>
     </div>
 
   </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div>
-      &copy; 2026 Your Company. All rights reserved.
-    </div>
-
-    <div class="footer-links">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-    </div>
-  </footer>
-
-  <script>
-    window.addEventListener("load", () => {
-      // Intentionally no automatic download.
-      // The existing download link remains available
-      // for the user to click.
-    });
-  </script>
 
 </body>
 </html>
