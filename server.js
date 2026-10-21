@@ -1,4 +1,3 @@
-
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -76,6 +75,43 @@ const server = http.createServer((req, res) => {
       });
 
       stream.pipe(res);
+    });
+
+    return;
+  }
+
+  // Serve the same ZIP file with different declared content types
+  if (
+    url.pathname === "/plain" ||
+    url.pathname === "/pdf-label"
+  ) {
+    fs.readFile(ZIP_PATH, (err, data) => {
+      if (err) {
+        res.writeHead(500, {
+          "Content-Type": "text/plain; charset=utf-8"
+        });
+        res.end("Unable to read ZIP file");
+        return;
+      }
+
+      const declaredType =
+        url.pathname === "/plain"
+          ? "text/plain; charset=utf-8"
+          : "application/pdf";
+
+      res.writeHead(200, {
+        "Content-Type": declaredType,
+        "Content-Length": data.length,
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-store"
+      });
+
+      if (req.method === "HEAD") {
+        res.end();
+        return;
+      }
+
+      res.end(data);
     });
 
     return;
