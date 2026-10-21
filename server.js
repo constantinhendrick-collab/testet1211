@@ -3,7 +3,7 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 8080;
 const HOST = "0.0.0.0";
 
 const ZIP_PATH = path.join(__dirname, "build.zip");
