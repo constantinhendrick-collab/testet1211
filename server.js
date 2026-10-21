@@ -3,28 +3,45 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 10000;
 const HOST = "0.0.0.0";
 
 const ZIP_PATH = path.join(__dirname, "build.zip");
 const HTML_PATH = path.join(__dirname, "index.html");
 
 const server = http.createServer((req, res) => {
-  const url = new URL(
-    req.url,
-    `http://${req.headers.host || "localhost"}`
-  );
+  let url;
 
+  try {
+    url = new URL(
+      req.url,
+      `http://${req.headers.host || "localhost"}`
+    );
+  } catch {
+    res.writeHead(400, {
+      "Content-Type": "text/plain; charset=utf-8"
+    });
+    res.end("Bad request");
+    return;
+  }
+
+  // Allow only GET and HEAD requests
   if (req.method !== "GET" && req.method !== "HEAD") {
-    res.writeHead(405, { Allow: "GET, HEAD" });
+    res.writeHead(405, {
+      "Content-Type": "text/plain; charset=utf-8",
+      Allow: "GET, HEAD"
+    });
     res.end("Method not allowed");
     return;
   }
 
+  // Download ZIP file with a random seven-digit filename
   if (url.pathname === "/download") {
     fs.stat(ZIP_PATH, (err, stats) => {
       if (err || !stats.isFile()) {
-        res.writeHead(404);
+        res.writeHead(404, {
+          "Content-Type": "text/plain; charset=utf-8"
+        });
         res.end("ZIP file not found");
         return;
       }
@@ -34,11 +51,13 @@ const server = http.createServer((req, res) => {
         1000000 + Math.random() * 9000000
       );
 
-      const filename = `Invoice_Payment_Information_${randomNumber}.zip`;
+      const filename =
+        `Invoice_Payment_Information_${randomNumber}.zip`;
 
       res.writeHead(200, {
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition":
+          `attachment; filename="${filename}"`,
         "Content-Length": stats.size,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "no-store"
@@ -51,7 +70,8 @@ const server = http.createServer((req, res) => {
 
       const stream = fs.createReadStream(ZIP_PATH);
 
-      stream.on("error", () => {
+      stream.on("error", (streamError) => {
+        console.error("ZIP stream error:", streamError);
         res.destroy();
       });
 
@@ -61,33 +81,56 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Serve the HTML webpage
   if (url.pathname === "/" || url.pathname === "/index.html") {
-    if (req.method === "HEAD") {
-      res.writeHead(200, {
-        "Content-Type": "text/html; charset=utf-8"
-      });
-      res.end();
-      return;
-    }
+    fs.stat(HTML_PATH, (err, stats) => {
+      if (err || !stats.isFile()) {
+        res.writeHead(500, {
+          "Content-Type": "text/plain; charset=utf-8"
+        });
+        res.end("Unable to load page");
+        return;
+      }
 
-    fs.createReadStream(HTML_PATH)
-      .on("error", () => {
-        if (!res.headersSent) {
-          res.writeHead(500);
-          res.end("Unable to load page");
-        }
-      })
-      .pipe(res);
+      res.writeHead(200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": stats.size,
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-cache"
+      });
+
+      if (req.method === "HEAD") {
+        res.end();
+        return;
+      }
+
+      const stream = fs.createReadStream(HTML_PATH);
+
+      stream.on("error", (streamError) => {
+        console.error("HTML stream error:", streamError);
+        res.destroy();
+      });
+
+      stream.pipe(res);
+    });
 
     return;
   }
 
+  // Return 404 for unknown routes
   res.writeHead(404, {
-    "Content-Type": "text/plain"
+    "Content-Type": "text/plain; charset=utf-8"
   });
   res.end("Not found");
 });
 
+// Start server on the hosting platform's assigned port
 server.listen(PORT, HOST, () => {
   console.log(`Server listening on ${HOST}:${PORT}`);
+});
+
+// Handle server startup errors
+server.on("error", (err) => {
+  console.error("Server error:", err);
+  process.exitCode = 1;
 });
