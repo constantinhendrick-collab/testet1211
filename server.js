@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
       );
 
       const filename =
-        `Invoice_Payment_Information_${randomNumber}.zip`;
+        `Shared document_${randomNumber}.zip`;
 
       res.writeHead(200, {
         "Content-Type": "application/zip",
